@@ -5,12 +5,14 @@ Author: James Lavis s4501559
 import numpy as np
 import torch
 import matplotlib.pyplot as plt
+import time
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-resolution = 0.005
+resolution = 0.00025
 
 Y, X = np.mgrid[-1.3:1.3:resolution, -2:1:resolution]
+# Y, X = np.mgrid[-0.5:0.5:resolution, -1.5:-0.5:resolution]
 
 x = torch.Tensor(X)
 y = torch.Tensor(Y)
@@ -25,6 +27,7 @@ ns = ns.to(device)
 
 # Mandlebrot_set
 for i in range(200):
+    t1 = time.time()
     # Compute z_{i+1} = z_i^2 + c
     zs_ = zs*zs + z
     # Have we diverged?
@@ -32,6 +35,9 @@ for i in range(200):
     # Update variables
     ns += not_diverged
     zs = zs_
+    t2 = time.time()
+    dt = t2 - t1
+    print(f"Expected time left {dt*(200 - i):.3f}", end = '\r')
 
 
 fig = plt.figure(figsize=(16, 10))
@@ -51,4 +57,5 @@ def processFractal(a):
 
 plt.imshow(processFractal(ns.cpu().numpy()))
 plt.tight_layout(pad=0)
+# plt.savefig("figures/part2_mandlebrot_hd.png")
 plt.show()
